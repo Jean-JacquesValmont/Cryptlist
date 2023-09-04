@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.hoverable
@@ -43,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -51,6 +53,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,22 +83,30 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun HomeScreen() {
-    Box {
+    Box()
+    {
         Background()
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Title("Android")
             Spacer(modifier = Modifier.height(24.dp))
             SimpleOutlinedTextFieldSample()
             PasswordTextField()
-            Row {
-                SimpleButton(onClick = { /*TODO*/ })
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SimpleButton(onClick = { /* TODO */ })
                 InscriptionLink()
-
             }
-
         }
     }
-
 }
 
 @Composable
@@ -123,7 +134,7 @@ fun Title(name: String, modifier: Modifier = Modifier, fontSize: TextUnit = 80.s
         modifier = modifier,
         fontWeight = FontWeight.Bold,
         fontSize = fontSize,
-        color = Color.White
+        color = Color.White,
     )
 }
 
@@ -134,7 +145,12 @@ fun SimpleOutlinedTextFieldSample() {
     TextField(
         value = text,
         onValueChange = { text = it },
-        label = { Text("Email") }
+        label = { Text("Email") },
+        modifier = Modifier.padding(10.dp),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Email,
+            imeAction = ImeAction.Next
+        ),
     )
 }
 
@@ -147,7 +163,8 @@ fun PasswordTextField() {
         onValueChange = { password = it },
         label = { Text("Enter password") },
         visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        modifier = Modifier.padding(10.dp)
     )
 }
 
@@ -174,7 +191,7 @@ fun InscriptionLink() {
                 }
             }
             .clickable {
-            }
+            }.offset(y = 18.dp)
     )
 }
 
