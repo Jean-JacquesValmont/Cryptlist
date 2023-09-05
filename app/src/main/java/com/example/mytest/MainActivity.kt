@@ -63,6 +63,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.mytest.ui.theme.MyTestTheme
 
 
@@ -71,10 +74,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyTestTheme {
-                HomeScreen()
+                Navigation()
                 //A surface container using the 'background' color from the theme
                 //Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-
                 //}
             }
         }
@@ -82,7 +84,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController) {
     Box()
     {
         Background()
@@ -102,7 +104,7 @@ fun HomeScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SimpleButton(onClick = { /* TODO */ })
+                SimpleButtonConnect(onClick = { navController.navigate("InscriptionPage") })
                 InscriptionLink()
             }
         }
@@ -110,9 +112,32 @@ fun HomeScreen() {
 }
 
 @Composable
-fun InscriptionPage() {
-
+fun InscriptionPage(navController: NavHostController) {
+    Box()
+    {
+        Background()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Title("Android")
+            Spacer(modifier = Modifier.height(24.dp))
+            SimpleOutlinedTextFieldSample()
+            PasswordTextField()
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SimpleButtonInscription(onClick = { /* TODO */ })
+            }
+        }
+    }
 }
+
 
 @Composable
 fun Background() {
@@ -169,9 +194,17 @@ fun PasswordTextField() {
 }
 
 @Composable
-fun SimpleButton(onClick: () -> Unit) {
+fun SimpleButtonConnect(onClick: () -> Unit) {
     Button(onClick = onClick) {
         Text("Se connecter")
+    }
+
+}
+
+@Composable
+fun SimpleButtonInscription(onClick: () -> Unit) {
+    Button(onClick = onClick) {
+        Text("S'inscrire")
     }
 
 }
@@ -191,16 +224,30 @@ fun InscriptionLink() {
                 }
             }
             .clickable {
-            }.offset(y = 18.dp)
+            }
+            .offset(y = 18.dp)
     )
 }
-
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     MyTestTheme {
-        HomeScreen()
+        Navigation()
 
+    }
+}
+
+@Composable
+fun Navigation() {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "HomeScreen") {
+        composable("HomeScreen") {
+            HomeScreen(navController)
+        }
+        composable("InscriptionPage") {
+            InscriptionPage(navController)
+        }
     }
 }
