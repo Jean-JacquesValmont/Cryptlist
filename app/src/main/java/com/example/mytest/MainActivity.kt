@@ -3,37 +3,35 @@
 package com.example.mytest
 
 import android.os.Bundle
+import android.renderscript.RenderScript
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
+
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
+
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
+
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -44,14 +42,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,13 +54,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mytest.ui.theme.MyTestTheme
+import java.time.format.TextStyle
 
 
 class MainActivity : ComponentActivity() {
@@ -95,7 +88,7 @@ fun HomeScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Title("Android")
+            Title("Android", boolean = true)
             Spacer(modifier = Modifier.height(24.dp))
             SimpleOutlinedTextFieldSample()
             PasswordTextField()
@@ -104,8 +97,8 @@ fun HomeScreen(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SimpleButtonConnect(onClick = { navController.navigate("InscriptionPage") })
-                InscriptionLink()
+                SimpleButtonConnect(onClick = { navController.navigate("ToDoPage") })
+                InscriptionLink(onClick = { navController.navigate("InscriptionPage") })
             }
         }
     }
@@ -123,7 +116,7 @@ fun InscriptionPage(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Title("Android")
+            Title("Android", boolean = false)
             Spacer(modifier = Modifier.height(24.dp))
             SimpleOutlinedTextFieldSample()
             PasswordTextField()
@@ -132,8 +125,25 @@ fun InscriptionPage(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SimpleButtonInscription(onClick = { /* TODO */ })
+                SimpleButtonInscription(onClick = { navController.navigate("HomeScreen") })
             }
+        }
+    }
+}
+
+@Composable
+fun ToDoPage(navController: NavHostController) {
+    Box()
+    {
+        Background()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TitleList("Android")
+            ToDoListApp()
         }
     }
 }
@@ -153,13 +163,38 @@ fun Background() {
 
 
 @Composable
-fun Title(name: String, modifier: Modifier = Modifier, fontSize: TextUnit = 80.sp) {
+fun Title(name: String, modifier: Modifier = Modifier, fontSize: TextUnit = 80.sp, boolean: Boolean) {
     Text(
         text = "Cryptlist",
         modifier = modifier,
         fontWeight = FontWeight.Bold,
         fontSize = fontSize,
         color = Color.White,
+    )
+    if (boolean) {
+        Text(
+            text = "connection",
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+    } else {
+        Text(
+            text = "inscription",
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+    }
+}
+
+@Composable
+fun TitleList(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Ma ToDoCryptList",
+        color = Color.White,
+        fontWeight = FontWeight.Bold,
+        fontSize = 40.sp
     )
 }
 
@@ -210,23 +245,56 @@ fun SimpleButtonInscription(onClick: () -> Unit) {
 }
 
 @Composable
-fun InscriptionLink() {
-    val destinationUrl = ""
-    var isHovered by remember { mutableStateOf(false) }
-    Text(
-        text = "Créer un compte",
-        color = if (isHovered) Color.Blue else Color.White,
-        fontWeight = FontWeight.Bold,
+fun InscriptionLink(onClick: () -> Unit) {
+    Button(onClick = onClick) {
+        Text("Créer un compte")
+    }
+
+}
+
+@Composable
+fun ToDoListApp() {
+    var newTask by remember { mutableStateOf("") }
+    var tasks by remember { mutableStateOf(mutableListOf<String>()) }
+
+    Column(
         modifier = Modifier
-            .pointerInput(Unit) {
-                detectTransformGestures { _, _, _, _ ->
-                    isHovered = true
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Champ de texte pour ajouter une tâche
+        TextField(
+            value = newTask,
+            onValueChange = { newValue ->
+                newTask = newValue
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            singleLine = true,
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 18.sp)
+        )
+
+        // Bouton pour ajouter une tâche
+        Button(
+            onClick = {
+                if (newTask.isNotBlank()) {
+                    tasks.add(newTask)
+                    newTask = ""
                 }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Ajouter une tâche")
+        }
+
+        // Liste des tâches
+        LazyColumn {
+            items(items = tasks) { task ->
+                Text(text = task, fontSize = 18.sp)
             }
-            .clickable {
-            }
-            .offset(y = 18.dp)
-    )
+        }
+    }
 }
 
 @Preview(showBackground = true)
@@ -248,6 +316,9 @@ fun Navigation() {
         }
         composable("InscriptionPage") {
             InscriptionPage(navController)
+        }
+        composable("ToDoPage") {
+            ToDoPage(navController)
         }
     }
 }
