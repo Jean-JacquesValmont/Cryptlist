@@ -8,6 +8,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,12 +38,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
@@ -58,6 +62,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.tv.material3.Border
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.example.mytest.ui.theme.MyTestTheme
 import java.time.format.TextStyle
 
@@ -252,10 +258,15 @@ fun InscriptionLink(onClick: () -> Unit) {
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
 @Composable
 fun ToDoListApp() {
     var newTask by remember { mutableStateOf("") }
-    var tasks by remember { mutableStateOf(mutableListOf<String>()) }
+    val tasks = remember {
+        mutableStateListOf(
+            ""
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -268,6 +279,7 @@ fun ToDoListApp() {
             onValueChange = { newValue ->
                 newTask = newValue
             },
+            label = {Text("Content")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
@@ -291,7 +303,22 @@ fun ToDoListApp() {
         // Liste des tâches
         LazyColumn {
             items(items = tasks) { task ->
-                Text(text = task, fontSize = 18.sp)
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .background(brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        Color.Green.copy(alpha = 0.5f),
+                        Color.Green.copy(alpha = 0.5f)
+                    ),
+                    startX = 0f,
+                    endX = Float.POSITIVE_INFINITY
+                )
+                    ).border(2.dp, Color.White)
+                )
+                {
+                    Text(text = task, fontSize = 30.sp, color = Color.White)
+                }
+
             }
         }
     }
