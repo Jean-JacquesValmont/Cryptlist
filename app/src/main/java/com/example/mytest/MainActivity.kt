@@ -33,6 +33,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -149,6 +151,7 @@ fun ToDoPage(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TitleList("Android")
+            DropDownMenu()
             ToDoListApp()
         }
     }
@@ -273,6 +276,18 @@ fun ToDoListApp() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        TextField(
+            value = newTask,
+            onValueChange = { newValue ->
+                newTask = newValue
+            },
+            label = {Text("Title")},
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            singleLine = true,
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 18.sp)
+        )
         // Champ de texte pour ajouter une tâche
         TextField(
             value = newTask,
@@ -305,15 +320,17 @@ fun ToDoListApp() {
             items(items = tasks) { task ->
                 Box(modifier = Modifier
                     .fillMaxWidth()
-                    .background(brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        Color.Green.copy(alpha = 0.5f),
-                        Color.Green.copy(alpha = 0.5f)
-                    ),
-                    startX = 0f,
-                    endX = Float.POSITIVE_INFINITY
-                )
-                    ).border(2.dp, Color.White)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Green.copy(alpha = 0.5f),
+                                Color.Green.copy(alpha = 0.5f)
+                            ),
+                            startX = 0f,
+                            endX = Float.POSITIVE_INFINITY
+                        )
+                    )
+                    .border(2.dp, Color.White)
                 )
                 {
                     Text(text = task, fontSize = 30.sp, color = Color.White)
@@ -322,6 +339,57 @@ fun ToDoListApp() {
             }
         }
     }
+}
+
+@Composable
+fun DropDownMenu() {
+
+    var isExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var cryptage by remember {
+        mutableStateOf("")
+    }
+    
+    ExposedDropdownMenuBox(
+        expanded = isExpanded, onExpandedChange = { isExpanded = it }
+    ) {
+        TextField(
+            value = cryptage,
+            onValueChange = {},
+            label = { Text("Cryptage") },
+            readOnly = true,
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier.menuAnchor()
+        )
+
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false }
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(text = "B-Crypt")},
+                onClick = {
+                    cryptage = "B-Crypt"
+                    isExpanded = false
+                })
+            DropdownMenuItem(
+                text = {
+                    Text(text = "MD-5")},
+                onClick = {
+                    cryptage = "MD-5"
+                    isExpanded = false
+                })
+
+
+        }
+    }
+
 }
 
 @Preview(showBackground = true)
