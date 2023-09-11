@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -334,6 +335,10 @@ fun ToDoListApp() {
                 )
                 {
                     Text(text = task, fontSize = 30.sp, color = Color.White)
+                    Button(onClick = { /*TODO*/ },
+                        modifier = Modifier.offset(x = 100.dp)) {
+
+                    }
                 }
 
             }
