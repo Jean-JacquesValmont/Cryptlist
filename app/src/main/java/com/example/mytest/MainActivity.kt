@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.BasicTextField
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 
@@ -61,6 +62,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -84,6 +86,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
@@ -142,6 +146,7 @@ fun InscriptionPage(navController: NavHostController) {
 
 @Composable
 fun ToDoPage(navController: NavHostController) {
+    var activeCryptGlobal by remember { mutableStateOf(0) }
     Box()
     {
         Background()
@@ -152,8 +157,10 @@ fun ToDoPage(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TitleList("Android")
-            DropDownMenu()
-            ToDoListApp()
+            DropDownMenu(activeCryptGlobal) { newValue ->
+                activeCryptGlobal = newValue
+            }
+            ToDoListApp(activeCrypt = activeCryptGlobal)
         }
     }
 }
@@ -264,7 +271,7 @@ fun InscriptionLink(onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
 @Composable
-fun ToDoListApp() {
+fun ToDoListApp(activeCrypt: Int) {
     var newTask by remember { mutableStateOf("") }
     val tasks = remember {
         mutableStateListOf(
@@ -277,18 +284,6 @@ fun ToDoListApp() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        TextField(
-            value = newTask,
-            onValueChange = { newValue ->
-                newTask = newValue
-            },
-            label = {Text("Title")},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            singleLine = true,
-            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 18.sp)
-        )
         // Champ de texte pour ajouter une tâche
         TextField(
             value = newTask,
@@ -307,8 +302,15 @@ fun ToDoListApp() {
         Button(
             onClick = {
                 if (newTask.isNotBlank()) {
-                    tasks.add(newTask)
-                    newTask = ""
+                    if (activeCrypt == 0){
+                        tasks.add(newTask)
+                        newTask = ""
+                    }
+                    else if (activeCrypt == 1){
+                        newTask = chiffreCesar(newTask, 3)
+                        tasks.add(newTask)
+                        newTask = ""
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -335,8 +337,20 @@ fun ToDoListApp() {
                 )
                 {
                     Text(text = task, fontSize = 30.sp, color = Color.White)
-                    Button(onClick = { /*TODO*/ },
-                        modifier = Modifier.offset(x = 100.dp)) {
+                    Button(
+                        onClick = {
+                            tasks.remove(task)
+
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.padding(8.dp).offset(x = 280.dp),
+
+
+                    ) {
+                        Text(text = "X")
+                    }
 
                     }
                 }
@@ -344,19 +358,20 @@ fun ToDoListApp() {
             }
         }
     }
-}
 
 @Composable
-fun DropDownMenu() {
+fun DropDownMenu(activeCryptGlobal: Int, onChangeCryptage: (Int) -> Unit) {
 
     var isExpanded by remember {
         mutableStateOf(false)
     }
 
     var cryptage by remember {
-        mutableStateOf("")
+        mutableStateOf("Aucun")
     }
-    
+
+    var activeCryptGlobal = 0
+
     ExposedDropdownMenuBox(
         expanded = isExpanded, onExpandedChange = { isExpanded = it }
     ) {
@@ -378,23 +393,39 @@ fun DropDownMenu() {
         ) {
             DropdownMenuItem(
                 text = {
-                    Text(text = "B-Crypt")},
+                    Text(text = "Aucun")},
                 onClick = {
-                    cryptage = "B-Crypt"
+                    cryptage = "Aucun"
                     isExpanded = false
+                    onChangeCryptage(0)
                 })
             DropdownMenuItem(
                 text = {
-                    Text(text = "MD-5")},
+                    Text(text = "César D-3")},
                 onClick = {
-                    cryptage = "MD-5"
+                    cryptage = "César D-3"
                     isExpanded = false
+                    onChangeCryptage(1)
                 })
-
 
         }
     }
 
+}
+
+fun chiffreCesar(text: String, decalage: Int): String {
+    val resultat = StringBuilder()
+    for (char in text) {
+        if (char.isLetter()) {
+            val estMinuscule = char.isLowerCase()
+            val alphabet = if (estMinuscule) 'a' else 'A'
+            val lettre = (((char.toInt() - alphabet.toInt() + decalage) % 26 + 26) % 26 + alphabet.toInt()).toChar()
+            resultat.append(lettre)
+        } else {
+            resultat.append(char)
+        }
+    }
+    return resultat.toString()
 }
 
 @Preview(showBackground = true)
@@ -422,3 +453,4 @@ fun Navigation() {
         }
     }
 }
+
