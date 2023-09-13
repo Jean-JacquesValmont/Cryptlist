@@ -3,7 +3,6 @@
 package com.example.mytest
 
 import android.os.Bundle
-import android.renderscript.RenderScript
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 
@@ -14,7 +13,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 
 import androidx.compose.foundation.layout.Spacer
@@ -29,9 +27,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +39,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,15 +61,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.example.mytest.ui.theme.MyTestTheme
-import java.time.format.TextStyle
 
 
 class MainActivity : ComponentActivity() {
@@ -278,6 +274,7 @@ fun ToDoListApp(activeCrypt: Int) {
             ""
         )
     }
+    var isDialogOpen by remember { mutableStateOf(false)}
 
     Column(
         modifier = Modifier
@@ -345,15 +342,67 @@ fun ToDoListApp(activeCrypt: Int) {
                         colors = ButtonDefaults.buttonColors(
                             contentColor = Color.White
                         ),
-                        modifier = Modifier.padding(8.dp).offset(x = 280.dp),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .offset(x = 230.dp),
 
 
                     ) {
                         Text(text = "X")
                     }
 
+                    Button(
+                        onClick = {
+                            dechiffreCesar(task, 3)
+                            isDialogOpen = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .offset(x = 280.dp),
+
+
+                        ) {
+                        Text(text = "D")
                     }
+                     if (isDialogOpen) {
+                         AlertDialog(
+                             onDismissRequest = {
+                                 // Fermer la pop-up lorsque l'utilisateur clique en dehors de celle-ci
+                                 isDialogOpen = false
+                             },
+                             title = {
+                                 Text("Décryptage")
+                             },
+                             text = {
+                                 Text(dechiffreCesar(task, 3))
+                             },
+                             confirmButton = {
+                                 Button(
+                                     onClick = {
+                                         // Traitement à effectuer lorsque l'utilisateur appuie sur le bouton "Confirmer"
+                                         isDialogOpen = false
+                                     }
+                                 ) {
+                                     Text("Confirmer")
+                                 }
+                             },
+                             dismissButton = {
+                                 Button(
+                                     onClick = {
+                                         // Traitement à effectuer lorsque l'utilisateur appuie sur le bouton "Annuler"
+                                         isDialogOpen = false
+                                     }
+                                 ) {
+                                     Text("Annuler")
+                                 }
+                             }
+                         )
+                     }
                 }
+            }
 
             }
         }
@@ -428,11 +477,41 @@ fun chiffreCesar(text: String, decalage: Int): String {
     return resultat.toString()
 }
 
+fun dechiffreCesar(texte: String, decalage: Int): String {
+    return chiffreCesar(texte, -decalage)
+}
+
+@Composable
+fun ServerDataScreen(serverClient: ServerClient) {
+    var responseData by remember { mutableStateOf("En attente de données...") }
+
+    Column {
+        BasicTextField(
+            value = responseData,
+            onValueChange = { /* Modifier l'état si nécessaire */ }
+        )
+
+        LaunchedEffect(Unit) {
+            try {
+                // Appeler la fonction du client dans une coroutine
+                val data = serverClient.fetchDataFromServer()
+                // Mettre à jour l'état de responseData avec les données récupérées
+                responseData = data
+            } catch (e: Exception) {
+                // Gérer les erreurs de connexion ici, par exemple :
+                responseData = "Erreur de connexion : ${e.message}"
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     MyTestTheme {
-        Navigation()
+        val mockClient = ServerClient()
+
+        ServerDataScreen(mockClient)
 
     }
 }
